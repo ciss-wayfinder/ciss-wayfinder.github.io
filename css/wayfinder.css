@@ -72,8 +72,8 @@ h1 {
     border-color: #ffffff;
 }
 
-.bottomrow h5 {
-
+h3,h2 {
+   color: #000000;
 }
 
 .nextText {
@@ -82,4 +82,5 @@ h1 {
 
 .upcoming {
     color: #eee;
+    font-size: 24px;
 }
