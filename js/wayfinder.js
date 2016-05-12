@@ -49,6 +49,16 @@ function compareTimes(dateStr) {
     return "nodisplay";
 };
 
+function isEventOn(event) {
+     var end = new Date(event['ended_at']);
+     var start = new Date(event['started_at']);
+     var curr = new Date();
+     if(start <= curr && end >= curr) {
+         return true;
+     }
+     return false;
+}
+
 /** This function checks what the next event is **/
 function hasNextEvent(space) {
     var event = '';
@@ -90,7 +100,7 @@ return {
 
   InitCurrentRoomStatus : function(token){
 
-    var scrapeForRoomStatus = 600000; // 1 minute
+    var scrapeForRoomStatus = 60000; // 1 minute
 
     var nInterval1 = setInterval(start, scrapeForRoomStatus);
 
@@ -112,6 +122,7 @@ return {
                  if(space[i]['id'] === space[i].current_event['space_id']) {
                     event = space[i].current_event;
                     eventTimeDiv += "<h3>" + getTimeFromDate(event['started_at']) + " to " + getTimeFromDate(event['ended_at']) + "</h3>";
+                    //event = true;
                   }
               } else if ((space[i].next_event) && (compareTimes(space[i].next_event['started_at']) !== "nodisplay")) {   // no current events so lets see what is the next event for this room
                  if(space[i]['id'] === space[i].next_event['space_id']) {
@@ -159,7 +170,7 @@ return {
 
   InitUpcomingEvents : function(token){
 
-    var scrapeForUpcomingEvents = 300000; // 5 minutes
+    var scrapeForUpcomingEvents = 60000; // 5 minutes
     var nInterval = setInterval(showUpComing, scrapeForUpcomingEvents);
 
     showUpComing();
@@ -184,12 +195,17 @@ return {
           var div = document.getElementById(divElement);
           div.innerHTML = " "; // clear any prev html
           var numEventsShow = (events.length > 3) ? 3 : events.length;
-          for (i ; i < numEventsShow; i++)
+          for (i; i < numEventsShow; i++)
           {
-            if(compareTimes(events[i]['started_at']) !== "nodisplay") {
-                var event = new Event(events[i]);
-                var template = $.templates('#upcomingLayout');
-                div.innerHTML += template.render(event);
+            var currEvent = isEventOn(events[i]);
+            if(!currEvent) {
+              if((compareTimes(events[i]['started_at']) !== "nodisplay")) {
+                  var event = new Event(events[i]);
+                  var template = $.templates('#upcomingLayout');
+                  div.innerHTML += template.render(event);
+              }
+            } else {
+                numEventsShow++;
             }
           }
           // Were there any events to show?
