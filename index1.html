@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>MCD - Wayfinder</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/half-slider.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Wayfinder helper script -->
+    <script src="js/wayfinder.js"></script>
+
+    <script src="https://static.robinpowered.com/js/sdk/releases/0.5.1/robin.browser.min.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+  <div class="container">
+      <div class="row">
+          <div class="col-lg-12 top-arrow-container">
+              <div class="col-lg-2">
+                  <img src="../images/left_arrow_trans.gif"/>
+              </div>
+              <div  class="col-lg-8">
+                  <div id="div0" style="float:left" class="col-lg-6">
+                  </div>
+              </div>
+         </div>
+     </div>
+     <div class="row">
+         <div class="col-lg-12 middle-arrow-container">
+             <div style="float:right" class="col-lg-2">
+                 <img src="../images/right_arrow_trans.gif"/>
+             </div>
+             <div  class="col-lg-8">
+                 <div id="div1" style="float:right" class="col-lg-6 text-right"></div>
+             </div>
+         </div>
+    </div>
+    <div class="row">
+         <div class="col-lg-12 bottom-arrow-container">
+             <div class="col-lg-2">
+                <img src="../images/left_arrow_trans.gif"/>
+            </div>
+            <div  class="col-lg-8">
+                <div id="div2" class="col-lg-8"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+
+$(document).ready(function(){
+      var locationID = 2150;
+      var token = '7xsfmQh5x5ZHsCdqRb0x6xzZnkdtOFQ8iVxpdsgeLoNik57tU2HxIFKYD6OVxM3HMRUELVEYCTU11EkQz5UrlJyiuIl29uT4wubc1kSy7WqXz4KrViGoMKbSk4107N4g';
+      var robin = new Robin(token);
+      var privacy = "All Welcome to Attend";
+      robin.api.locations.spaces.get(locationID).then(function (response) {
+            var spaceData = response.getData();
+
+            for (var i = 0; i < 3; i++) {
+                var meeting = document.getElementById('div' + i);
+                meeting.innerHTML = "<h1>" + spaceData[i]['name'] + "</h1>";
+                var meetingDescription = hasNextEvent(spaceData[i]);
+                if (meetingDescription === "Available") {
+                      meeting.innerHTML += "<h2><strong>Available</strong></h2>";
+                } else {
+                      meeting.innerHTML += "<h2>" + meetingDescription['title'] + "</h2>" +
+                                           "<h2>" + getTimeFromDate(meetingDescription['started_at']) +
+                                           " to " + getTimeFromDate(meetingDescription['ended_at']) +
+                                           "</h2>";
+                }
+            }
+      });
+
+});
+</script>
+
+
+</html>
