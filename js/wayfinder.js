@@ -7,7 +7,7 @@ function getTimeFromDate(dateStr, needSeconds) {
     var amORpm = "am";
     var mins = date.getMinutes().toString();
     var secs = " ";
-
+    // hours
     if (hours > 12){
       amORpm = "pm";
       hours -= 12;
@@ -18,13 +18,13 @@ function getTimeFromDate(dateStr, needSeconds) {
     if(hours == 0){
        hours = 12;
     }
-
+    // minutes
     if (mins <= 9){
        mins = "0" + mins;
     }
 
     var str = "" + hours + ":" + mins;
-
+    // seconds
     if(needSeconds) {
         var secs = date.getSeconds().toString();
         if(secs <= 9) {
@@ -34,7 +34,7 @@ function getTimeFromDate(dateStr, needSeconds) {
     }
     str += " " + amORpm;
     return str;
-}
+};
 
 function compareTimes(dateStr) {
     var date = new Date(dateStr);
@@ -47,6 +47,16 @@ function compareTimes(dateStr) {
         return "Today";
     }
     return "nodisplay";
+};
+
+function isEventOn(event) {
+     var end = new Date(event['ended_at']);
+     var start = new Date(event['started_at']);
+     var curr = new Date();
+     if(start <= curr && end >= curr) {
+         return true;
+     }
+     return false;
 }
 
 /** This function checks what the next event is **/
@@ -60,14 +70,14 @@ function hasNextEvent(space) {
         event = "Available";
     }
     return event;
-}
+};
 
 function getDayOfWeek(dateStr){
     var weekday = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
     var date = new Date(dateStr);
     var numOfWeekday = date.getDay();
     return weekday[numOfWeekday];
-}
+};
 
 /** This function returns privacy of the event in the room **/
 function getPrivacy(event) {
@@ -77,20 +87,20 @@ function getPrivacy(event) {
    } else {
       return "All Welcome";
    }
-}
+};
 
 /** This function returns the room name from an id **/
 function getLocationName(id) {
    var data = {7360 : "Space 1", 7358 : "Space 2", 7359 : "Space 3"};
    var name = data[id];
    return data[id];
-}
+};
 
 return {
 
   InitCurrentRoomStatus : function(token){
 
-    var scrapeForRoomStatus = 600000; // 1 minute
+    var scrapeForRoomStatus = 60000; // 1 minute
 
     var nInterval1 = setInterval(start, scrapeForRoomStatus);
 
@@ -112,6 +122,7 @@ return {
                  if(space[i]['id'] === space[i].current_event['space_id']) {
                     event = space[i].current_event;
                     eventTimeDiv += "<h3>" + getTimeFromDate(event['started_at']) + " to " + getTimeFromDate(event['ended_at']) + "</h3>";
+                    //event = true;
                   }
               } else if ((space[i].next_event) && (compareTimes(space[i].next_event['started_at']) !== "nodisplay")) {   // no current events so lets see what is the next event for this room
                  if(space[i]['id'] === space[i].next_event['space_id']) {
@@ -139,8 +150,6 @@ return {
                   room += "<h2>" + space[i]['name'] + space3_image  +  "</h2></div>";
                   break;
               }
-
-              //var room =  space1_image + space[i]['name'] + "</h2></div>";
               if (event)
               {
                 var privacy = getPrivacy(event);
@@ -161,51 +170,59 @@ return {
 
   InitUpcomingEvents : function(token){
 
-    var scrapeForUpcomingEvents = 300000; // 5 minutes
+    var scrapeForUpcomingEvents = 60000; // 5 minutes
     var nInterval = setInterval(showUpComing, scrapeForUpcomingEvents);
 
-      showUpComing();
+    showUpComing();
 
-      function showUpComing()  {
-            var spaces = [
-              {ID: "7360", Element: 'upcomingDiv'},
-              {ID: "7358", Element: 'upcomingDiv1'},
-              {ID: "7359", Element: 'upcomingDiv2'}
-            ];
-            //["7360", "7358", "7359"];
-            for (var x = 0; x < spaces.length; x++) {
-                upcoming_events(spaces[x].ID, spaces[x].Element);
-            }
-        };
-
-        function upcoming_events(id, divElement) { // room 1
-
-            $.get("https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming" + "?access_token=" + token , function(data){
-              var i = 0;
-              var events = data.data;
-              var div = document.getElementById(divElement);
-              div.innerHTML = " "; // clear any prev html
-              var numEventsShow = (events.length > 3) ? 3 : events.length;
-              for (i ; i < numEventsShow; i++)
-              {
-                  var eventStatus = compareTimes(events[i]['started_at']);
-                  if(eventStatus !== "nodisplay") {
-                    var row = "<div style='font-size: 24px' class='col-sm-4 upcoming'>" + events[i]['title'] + "</div>" +
-                              "<div style='font-size: 24px' class='col-sm-2 upcoming'>" + eventStatus + " </div>" +
-                              "<div style='font-size: 24px' class='col-sm-4 upcoming'>" + getTimeFromDate(events[i]['started_at'], false) +
-                              " to " + getTimeFromDate(events[i]['ended_at']) + "</div>" +
-                              "<div style='font-size: 24px' class='col-sm-2 upcoming'>" + getPrivacy(events[i]) + "</div>";
-                   var template = $.templates('#upcomingLayout');
-                   div.innerHTML = template.render(events[i]);
-                  }
-              };
-              // Were there any events to show?
-              if(div.innerHTML == ' ') {
-                  //div.style.visibility = "hidden";
-                  div.innerHTML = "<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>";
-              }
-          }); // end of ajax GET
+    function showUpComing()  {
+        var spaces = [
+            {ID: "7360", Element: 'upcomingDiv'},
+            {ID: "7358", Element: 'upcomingDiv1'},
+            {ID: "7359", Element: 'upcomingDiv2'}
+        ];
+        //["7360", "7358", "7359"];
+        for (var x = 0; x < spaces.length; x++) {
+            upcoming_events(spaces[x].ID, spaces[x].Element);
         }
+    };
+
+    function upcoming_events(id, divElement) { // room 1
+
+        $.get("https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming" + "?access_token=" + token , function(data){
+          var i = 0;
+          var events = data.data;
+          var div = document.getElementById(divElement);
+          div.innerHTML = " "; // clear any prev html
+          var numEventsShow = (events.length > 3) ? 3 : events.length;
+          for (i; i < numEventsShow; i++)
+          {
+            var currEvent = isEventOn(events[i]);
+            if(!currEvent) {
+              if((compareTimes(events[i]['started_at']) !== "nodisplay")) {
+                  var event = new Event(events[i]);
+                  var template = $.templates('#upcomingLayout');
+                  div.innerHTML += template.render(event);
+              }
+            } else {
+                numEventsShow++;
+            }
+          }
+          // Were there any events to show?
+          if(div.innerHTML == ' ') {
+              div.innerHTML = "<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>";
+            }
+       }); // end of ajax GET
+    };
+
+    function Event (event) {
+        this.Title = event['title'];
+        this.Status = compareTimes(event['started_at']);
+        this.Started = getTimeFromDate(event['started_at']);
+        this.Ended = getTimeFromDate(event['ended_at']);
+        this.Who = getPrivacy(event);
+    };
+
    },
    InitClock : function () {
        function showClock() {
