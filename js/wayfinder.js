@@ -75,8 +75,8 @@ function getRoomImage(roomID) {
 }
 
 function isEventOn(event) {
-     var end = new Date(event.Ended);
-     var start = new Date(event.Started);
+     var end = new Date(event['ended_at']);
+     var start = new Date(event['started_at']);
      var curr = new Date();
      if(start <= curr && end >= curr) {
          return true;
@@ -129,6 +129,12 @@ function IsRoomLoaded (roomID, spaces) {
   return loaded;
 }
 
+function unloadRooms(spaces) {
+  $.each(spaces, function (ind) {
+      spaces[ind].Loaded = false;
+  })
+}
+
 function LoadRoom (eventTimeDiv, event, eventOn) {
   var room = "<div style='background-color: #eee'>";
   var image = getRoomImage(event.Id);
@@ -157,7 +163,7 @@ return {
 
   InitUpcomingEvents : function(token){
 
-    var scrapeForUpcomingEvents = 60000; // 1 minute
+    var scrapeForUpcomingEvents = 30000; // 1 minute
     var nInterval = setInterval(showUpComing, scrapeForUpcomingEvents);
 
     showUpComing();
@@ -184,6 +190,7 @@ return {
                   var event = new Event(events[i]);
                   var template = $.templates('#upcomingLayout');
                   div.innerHTML += template.render(event);
+
                   if(!IsRoomLoaded(event.Id, spaces)) {
                       if (compareTimes(events[i]['started_at']) === "Today") {
                          eventTimeDiv = "<br /><h1> Now Available </h1><br /><h1>Until " + event.Started + "</h1>" +
@@ -209,7 +216,7 @@ return {
                   }
                 }
               }
-            } else {  // there is an current event in the room
+            } else {  // there is a current event in the room
                 numEventsShow++;
                 var event = new Event(events[i]);
                 var eventTimeDiv = "<h3>" + event.Started + " to " + event.Ended + "</h3>";
@@ -225,6 +232,7 @@ return {
               div.innerHTML = "<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>";
           }
        }); // end of ajax GET
+       unloadRooms(spaces);
     };
 
     function Event (event) {
