@@ -129,6 +129,12 @@ function IsRoomLoaded (roomID, spaces) {
   return loaded;
 }
 
+function unloadRooms(spaces) {
+  $.each(spaces, function (ind) {
+      spaces[ind].Loaded = false;
+  })
+}
+
 function LoadRoom (eventTimeDiv, event, eventOn) {
   var room = "<div style='background-color: #eee'>";
   var image = getRoomImage(event.Id);
@@ -157,7 +163,7 @@ return {
 
   InitUpcomingEvents : function(token){
 
-    var scrapeForUpcomingEvents = 60000; // 1 minute
+    var scrapeForUpcomingEvents = 30000; // 1 minute
     var nInterval = setInterval(showUpComing, scrapeForUpcomingEvents);
 
     showUpComing();
@@ -177,15 +183,23 @@ return {
           var numEventsShow = (events.length > 3) ? 3 : events.length;
           for (i; i < numEventsShow; i++)
           {
+            var eventTimeDiv = " ";
             var currEvent = isEventOn(events[i]);
             if(!currEvent) {  // no event on at the moment in the room
-              if((compareTimes(events[i]['started_at']) !== "nodisplay")) { // but there is an event today
+              if((compareTimes(events[i]['started_at']) !== "nodisplay")) { // but there are upcoming events
                   var event = new Event(events[i]);
                   var template = $.templates('#upcomingLayout');
                   div.innerHTML += template.render(event);
+
                   if(!IsRoomLoaded(event.Id, spaces)) {
-                      var eventTimeDiv = "<br /><h1> Now Available </h1><br /><h1>Until " + event.Started + "</h1>" +
-                                         "<br /><br /><h3 style='color: #fff'>"+ event.Started + " " + event.Title + "</h3>";
+                      if (compareTimes(events[i]['started_at']) === "Today") {
+                         eventTimeDiv = "<br /><h1> Now Available </h1><br /><h1>Until " + event.Started + "</h1>" +
+                                        "<br /><br /><h3 style='color: #fff'>"+ event.Started + " " + event.Title + "</h3>";
+                      }
+                      else {
+                         eventTimeDiv = "<br /><h1>Available</h1><br /><h1>All Day</h1>"; // no events on today
+                      }
+
                       var content = LoadRoom(eventTimeDiv,event,false);
                       var roomDiv = document.getElementById('room' + event.Id);
                       roomDiv.innerHTML = content;
@@ -202,7 +216,7 @@ return {
                   }
                 }
               }
-            } else {  // there is an current event in the room
+            } else {  // there is a current event in the room
                 numEventsShow++;
                 var event = new Event(events[i]);
                 var eventTimeDiv = "<h3>" + event.Started + " to " + event.Ended + "</h3>";
@@ -218,6 +232,7 @@ return {
               div.innerHTML = "<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>";
           }
        }); // end of ajax GET
+       unloadRooms(spaces);
     };
 
     function Event (event) {
