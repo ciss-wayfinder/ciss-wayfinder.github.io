@@ -75,8 +75,8 @@ function getRoomImage(roomID) {
 }
 
 function isEventOn(event) {
-     var end = new Date(event['ended_at']);
-     var start = new Date(event['started_at']);
+     var end = new Date(event.Ended);
+     var start = new Date(event.Started);
      var curr = new Date();
      if(start <= curr && end >= curr) {
          return true;
@@ -177,15 +177,22 @@ return {
           var numEventsShow = (events.length > 3) ? 3 : events.length;
           for (i; i < numEventsShow; i++)
           {
+            var eventTimeDiv = " ";
             var currEvent = isEventOn(events[i]);
             if(!currEvent) {  // no event on at the moment in the room
-              if((compareTimes(events[i]['started_at']) !== "nodisplay")) { // but there is an event today
+              if((compareTimes(events[i]['started_at']) !== "nodisplay")) { // but there are upcoming events
                   var event = new Event(events[i]);
                   var template = $.templates('#upcomingLayout');
                   div.innerHTML += template.render(event);
                   if(!IsRoomLoaded(event.Id, spaces)) {
-                      var eventTimeDiv = "<br /><h1> Now Available </h1><br /><h1>Until " + event.Started + "</h1>" +
-                                         "<br /><br /><h3 style='color: #fff'>"+ event.Started + " " + event.Title + "</h3>";
+                      if (compareTimes(events[i]['started_at']) === "Today") {
+                         eventTimeDiv = "<br /><h1> Now Available </h1><br /><h1>Until " + event.Started + "</h1>" +
+                                        "<br /><br /><h3 style='color: #fff'>"+ event.Started + " " + event.Title + "</h3>";
+                      }
+                      else {
+                         eventTimeDiv = "<br /><h1>Available</h1><br /><h1>All Day</h1>"; // no events on today
+                      }
+
                       var content = LoadRoom(eventTimeDiv,event,false);
                       var roomDiv = document.getElementById('room' + event.Id);
                       roomDiv.innerHTML = content;
