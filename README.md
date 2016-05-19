@@ -13,7 +13,7 @@ NOTE: You will be asked for the Wayfinder password twice. Password is Community0
 
 The Wayfinder should now be rebooting with updated changes.
 
-HELP: - When the file has been uploaded you may be prompt to update .git hidden folder. Pressing 'A' then enter will overwrite this folder.
+HELP: When the file has been uploaded you may be prompt to update .git hidden folder. Pressing 'A' then enter will overwrite this folder.
 
 ## Copyright and License
 
