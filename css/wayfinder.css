@@ -176,6 +176,34 @@ h3,h2 {
     margin: 30px;
     border: 1px solid black;
     box-shadow: 3px 3px 10px grey;    
-    border-radius: 30px;
+    border-radius: 20px;
     padding: 20px;
+    font-size: 18px;
+    background-color: white;
+}
+
+.page-content dl {
+    font-size: 16px;
+}
+
+ul.where {
+    margin-left: 120px;
+}
+ul.where li span {
+    font-size: 0.8em;
+    color: darkgray;
+    margin-right: 15px;
+}
+
+#hart-page ul {
+    font-size: 12px;
+    margin-left: 0;
+}
+
+.images {
+    text-align: center;
+}
+.images img {
+    max-width: 250px;
+    margin: 30px;
 }
