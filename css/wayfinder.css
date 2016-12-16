@@ -34,7 +34,6 @@ body, html {
 
 .flex-item {
     height: 200px;
-
 }
 
 .flex-item1 {
@@ -49,7 +48,7 @@ body, html {
     height: 350px;
     width: 31%;
     border-radius: 20px;
-    box-shadow: 10px 10px 5px grey;
+    box-shadow: 10px 10px 20px grey;
  }
  
 .flex-item3 { /** Upcoming Events **/
@@ -61,7 +60,7 @@ body, html {
     margin-top: 0px;
 }
 .flex-item3 h3 {
-    margin: 25px 0 5px;
+    margin: 20px 0 3px;
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -70,14 +69,13 @@ h1 {
     position: relative;
     font-size: 40px;
     margin-top: 0;
-    font-family: helvetica, arial;
 }
 
 .room1 {
-     background-color: #d14f00;
+    background-color: #d14f00;
 }
 .toprow.room1 > div:first-child {
-     background-color: #b34400;
+    background-color: #b34400;
 }
 .bottomrow.room1 {
     border-left: 10px solid #b34400;
@@ -156,7 +154,7 @@ h3,h2 {
 
 .upcoming {
     color: #eee;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .clock-row {
@@ -177,7 +175,7 @@ h3,h2 {
 .ad-content {
     margin: 30px;
     border: 1px solid black;
-    box-shadow: 10px 10px 5px grey;    
+    box-shadow: 3px 3px 10px grey;    
     border-radius: 30px;
     padding: 20px;
 }
