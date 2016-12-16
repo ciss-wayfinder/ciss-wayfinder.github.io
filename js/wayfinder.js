@@ -114,10 +114,10 @@ var WayFinder = (function() {
     }
 
     var pages = [
-        {Selector: "#upcoming", DisplayTime: 30 }, 
-        {Selector: "#ciss-ad", DisplayTime: 10 }, 
-        {Selector: "#upcoming", DisplayTime: 30 }, 
-        {Selector: "#hart-ad", DisplayTime: 5 }];
+        {Selector: "#upcoming", DisplayTime: 5 }, 
+        {Selector: "#ciss-ad", DisplayTime: 100 }, 
+        {Selector: "#upcoming", DisplayTime: 5 }, 
+        {Selector: "#hart-ad", DisplayTime: 100 }];
 
     var nextPageNo = 10000;
     var currentPage;
@@ -180,7 +180,7 @@ return {
     },
 
     InitAds: function() {
-        $(".ad").hide();
+        $(".page").hide();
         showPage();
     }
 }
