@@ -1,259 +1,187 @@
 var WayFinder = (function() {
 
   var spaces = [
-      {ID: "7360", Element: 'upcomingDiv', Loaded: false},  // room 1
-      {ID: "7358", Element: 'upcomingDiv1', Loaded: false}, // room 2
-      {ID: "7359", Element: 'upcomingDiv2', Loaded: false} // room 3
+      {ID: "7360", Element: "#upcomingDiv1"}, // room 1
+      {ID: "7358", Element: "#upcomingDiv2"}, // room 2
+      {ID: "7359", Element: "#upcomingDiv3"}  // room 3
   ];
 
     /** This function takes a date as a string and returns the time and whether Am or Pm **/
-function getTimeFromDate(dateStr, needSeconds) {
-    var date = new Date(dateStr);
-    var hours = date.getHours().toString();
-    var amORpm = "am";
-    var mins = date.getMinutes().toString();
-    var secs = " ";
-    // hours
-    if (hours > 12){
-      amORpm = "pm";
-      hours -= 12;
-    } else if(hours == 12) {
-       amORpm = "pm";
-    }
+    function getTimeFromDate(date, showSeconds) {
 
-    if(hours == 0){
-       hours = 12;
-    }
-    // minutes
-    if (mins <= 9){
-       mins = "0" + mins;
-    }
+        var hours = date.getHours();
+        var amORpm = "am";
+        var mins = date.getMinutes();
 
-    var str = "" + hours + ":" + mins;
-    // seconds
-    if(needSeconds) {
-        var secs = date.getSeconds().toString();
-        if(secs <= 9) {
-            secs = "0" + secs;
+        // hours
+        if (hours >= 12) {
+            amORpm = "pm";
+            hours -= 12;
         }
-        str += "." + secs;
-    }
-    str += " " + amORpm;
-    return str;
-};
+        if (hours === 0) hours = 12;
+        
+        // minutes
+        if (mins <= 9) mins = "0" + mins;
 
-function compareTimes(dateStr) {
-    var date = new Date(dateStr);
-    var eventDay = date.getDay();
-    var currDate = new Date();
-    var currDay = currDate.getDay();
-    if((eventDay > currDay) && (eventDay < currDay+3)) {
-        return getDayOfWeek(dateStr);
-    } else if (eventDay == currDay) {
-        return "Today";
-    }
-    return "nodisplay";
-};
+        var str = hours + ":" + mins;
 
-function getRoomImage(roomID) {
+        if (showSeconds) {
+            var secs = date.getSeconds();
+            if (secs <= 9) secs = "0" + secs;        
+            str += "." + secs;
+        }
+        
+        return str + " " + amORpm;
+    };
 
-  switch (roomID)
-  {
-    case 7360:
-      var image =  "<div><h2><img src='images/space1_arrow.png'/>Room 1</h2></div></div>";
-      return image;
-      break;
-    case 7358:
-      var image = "<div><h2><img src='images/space2_arrow.png'/>Room 2</h2></div></div>";
-      return image;
-      break;
-    case 7359:
-      var image = "<div><h2><img src='images/space3_arrow.png'/>Room 3</h2></div></div>";
-      return image;
-      break;
-  }
-}
+    function getDayOfWeek(date){
+        var weekday = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
+        var numOfWeekday = date.getDay();
+        return weekday[numOfWeekday];
+    };
 
-function isEventOn(event) {
-     var end = new Date(event['ended_at']);
-     var start = new Date(event['started_at']);
-     var curr = new Date();
-     if(start <= curr && end >= curr) {
-         return true;
-     }
-     return false;
-}
-
-/** This function checks what the next event is **/
-function hasNextEvent(space) {
-    var event = '';
-    if(space.current_event && space['name'] === space.current_event['location']) {
-        event = space.current_event;
-    } else if (space.next_event && space['name'] === space.next_event['location']){
-        event = space.next_event;
-    } else {
-        event = "Available";
-    }
-    return event;
-};
-
-function getDayOfWeek(dateStr){
-    var weekday = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
-    var date = new Date(dateStr);
-    var numOfWeekday = date.getDay();
-    return weekday[numOfWeekday];
-};
-
-/** This function returns privacy of the event in the room **/
-function getPrivacy(event) {
-   if (event['visibility'] == "private")
-   {
-      return "Private Function";
-   } else {
-      return "All Welcome";
-   }
-};
-
-function IsRoomLoaded (roomID, spaces) {
-  var space;
-  var loaded;
-  $.each(spaces, function (ind) {
-      if(spaces[ind].ID == roomID) {
-         space = spaces[ind];
-      }
-  })
-  if((space)) {
-    loaded = space.Loaded;
-    space.Loaded = true;
-  }
-  return loaded;
-}
-
-function unloadRooms(spaces) {
-  $.each(spaces, function (ind) {
-      spaces[ind].Loaded = false;
-  })
-}
-
-function LoadRoom (eventTimeDiv, event, eventOn) {
-  var room = "<div style='background-color: #eee'>";
-  var image = getRoomImage(event.Id);
-  room += image;
-  if (eventOn)
-  {
-    var privacy = getPrivacy(event);
-    room += "<div><br /><h1>" + event.Title + "</h1></div>" +
-            "<br />" + eventTimeDiv +
-            "<h2 style='color: #fff'>" + privacy + "</h2>";
-  } else {
-      room += eventTimeDiv;
-  }
-  //var privacy = getPrivacy(event);
-  return room;
-}
-
-/** This function returns the room name from an id **/
-function getLocationName(id) {
-   var data = {7360 : "Space 1", 7358 : "Space 2", 7359 : "Space 3"};
-   var name = data[id];
-   return data[id];
-};
-
-return {
-
-  InitUpcomingEvents : function(token){
-
-    var scrapeForUpcomingEvents = 30000; // 1 minute
-    var nInterval = setInterval(showUpComing, scrapeForUpcomingEvents);
-
-    showUpComing();
-
+    /** This function returns privacy of the event in the room **/
     function showUpComing()  {
         for (var x = 0; x < spaces.length; x++) {
-            upcoming_events(spaces[x].ID, spaces[x].Element);
+            getEvents(spaces[x].ID, spaces[x].Element);
+        }        
+    };
+
+    function getEvents(id, divElement) {
+        $.get("https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming" + "?access_token=" + token)
+            .done(function(data) {
+                var events = data.data;
+                var $upcomingDiv = $(divElement);
+                var $roomDiv = $("#room" + id);
+                var roomLoaded = false;
+
+                $upcomingDiv.html(""); 
+                $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
+                
+                var numEventsShow = (events.length > 3) ? 3 : events.length;
+
+                for (var i = 0; i < numEventsShow; i++) {
+
+                    var event = new Event(events[i]);
+                    var eventTimeDiv = " ";
+                
+                    if (event.IsOnNow) {  // there is a current event in the room
+                        if (!roomLoaded) {
+                            $roomDiv.html(
+                                "<h1>" + event.Title + "</h1>" +
+                                "<h3>" + event.StartTime + " to " + event.EndTime + "</h3>" +
+                                "<h2 style='color: #fff'>" + event.Who + "</h2>"
+                            );
+                            roomLoaded = true;
+                        }
+                    } else {  // no event on at the moment in the room
+
+                        if (event.DayOfWeek) { // but there are upcoming events
+
+                            var template = $.templates('#upcomingLayout');
+                            $upcomingDiv.html($upcomingDiv.html() + template.render(event));
+
+                            if (!roomLoaded) {
+                                if (event.IsOnToday) {
+                                    $roomDiv.html(
+                                        "<h1> Now Available </h1>" +
+                                        "<h1>Until " + event.StartTime + "</h1>" +
+                                        "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
+                                    );
+                                    roomLoaded = true;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            
+                // Were there any events to show?
+                if($upcomingDiv.html() === "") {
+                    $div.html("<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>");
+                }
+            })
+            .fail(function() {
+                $(divElement).html("<small>Could not get room details.</small>");
+            })
+            .error(function() {
+                $(divElement).html("<small>Could not get room details.</small>");
+            });
+    };
+
+    function showClock() {
+         $("#clock").html("<h1>" + getTimeFromDate(new Date(), true) + "</h1>");
+    }
+
+    var pages = [
+        {Selector: "#upcoming", DisplayTime: 30 }, 
+        {Selector: "#ciss-ad", DisplayTime: 10 }, 
+        {Selector: "#upcoming", DisplayTime: 30 }, 
+        {Selector: "#hart-ad", DisplayTime: 5 }];
+
+    var nextPageNo = 10000;
+    var currentPage;
+    var counter = 0;
+    var progressInterval;
+
+    function showPage() {
+        if (currentPage) clearInterval(currentPage.Interval);
+
+        var oldPage = currentPage;
+        if (++nextPageNo >= pages.length) nextPageNo = 0;
+        currentPage = pages[nextPageNo];
+
+        if (oldPage)
+        {
+            $(oldPage.Selector).slideToggle("slow", function() {
+                $(currentPage.Selector).slideToggle("slow");
+            });
         }
-    };
+        else {
+            $(currentPage.Selector).slideToggle("slow");
+        }
 
-    function upcoming_events(id, divElement) {
-        $.get("https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming" + "?access_token=" + token , function(data){
-          var i = 0;
-          var events = data.data;
-          var div = document.getElementById(divElement);
-          div.innerHTML = " "; // clear any prev html
-          var numEventsShow = (events.length > 3) ? 3 : events.length;
-          for (i; i < numEventsShow; i++)
-          {
-            var eventTimeDiv = " ";
-            var currEvent = isEventOn(events[i]);
-            if(!currEvent) {  // no event on at the moment in the room
-              if((compareTimes(events[i]['started_at']) !== "nodisplay")) { // but there are upcoming events
-                  var event = new Event(events[i]);
-                  var template = $.templates('#upcomingLayout');
-                  div.innerHTML += template.render(event);
+        setTimeout(showPage, currentPage.DisplayTime * 1000);
+        currentPage.Counter = 0;
+        currentPage.Interval = setInterval(showProgress, 100);
+    }
 
-                  if(!IsRoomLoaded(event.Id, spaces)) {
-                      if (compareTimes(events[i]['started_at']) === "Today") {
-                         eventTimeDiv = "<br /><h1> Now Available </h1><br /><h1>Until " + event.Started + "</h1>" +
-                                        "<br /><br /><h3 style='color: #fff'>"+ event.Started + " " + event.Title + "</h3>";
-                      }
-                      else {
-                         eventTimeDiv = "<br /><h1>Available</h1><br /><h1>All Day</h1>"; // no events on today
-                      }
-
-                      var content = LoadRoom(eventTimeDiv,event,false);
-                      var roomDiv = document.getElementById('room' + event.Id);
-                      roomDiv.innerHTML = content;
-                  }
-              }
-              else { // no events today in room
-                var event = new Event(events[i]);
-                if(!IsRoomLoaded(event.Id, spaces)) {
-                  eventTimeDiv = "<br /><h1>Available</h1><br /><h1>All Day</h1>"; // no events on today
-                  if(!IsRoomLoaded(event.Id, spaces)) {
-                      var content = LoadRoom(eventTimeDiv, event, false);
-                      var roomDiv = document.getElementById('room' + event.Id);
-                      roomDiv.innerHTML = content;
-                  }
-                }
-              }
-            } else {  // there is a current event in the room
-                numEventsShow++;
-                var event = new Event(events[i]);
-                var eventTimeDiv = "<h3>" + event.Started + " to " + event.Ended + "</h3>";
-                if(!IsRoomLoaded(event.Id, spaces)) {
-                     var content = LoadRoom(eventTimeDiv, event, true)
-                     var roomDiv = document.getElementById('room' + event.Id);
-                     roomDiv.innerHTML = content;
-                }
-             }
-          }
-          // Were there any events to show?
-          if(div.innerHTML == ' ') {
-              div.innerHTML = "<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>";
-          }
-       }); // end of ajax GET
-       unloadRooms(spaces);
-    };
+    function showProgress() {
+        currentPage.Counter += 100;
+        var width = currentPage.Counter / (currentPage.DisplayTime * 1000) * 100;
+        if (width > 100) width = 100;
+        $("#progress .bar").width(width + "%");
+        //console.log("counter: " + counter + ", currentTimeout: " + currentTimeout + ", width: " + width);
+    }
 
     function Event (event) {
         this.Title = event['title'];
-        this.Status = compareTimes(event['started_at']);
-        this.Started = getTimeFromDate(event['started_at']);
-        this.Ended = getTimeFromDate(event['ended_at']);
-        this.Who = getPrivacy(event);
-        this.Id = event['space_id'];
+        this.StartDate = new Date(event['started_at']);
+        this.StartTime = getTimeFromDate(this.StartDate);
+        this.EndDate = new Date(event['ended_at']);
+        this.EndTime = getTimeFromDate(this.EndDate);
+        this.TodayDate = new Date();
+        this.IsOnToday = (this.StartDate.getDay() == this.TodayDate.getDay());
+        this.DayOfWeek = this.IsOnToday ? "Today" : (this.StartDate.getDay() < this.TodayDate.getDay() + 3) ? getDayOfWeek(this.StartDate) : "";
+        this.Who = (event["visibility"] == "private") ? "Private Function" : "All Welcome";
+        this.IsOnNow = (this.StartDate <= this.TodayDate && this.TodayDate <= this.EndDate);
     };
 
-   },
-   InitClock : function () {
-       function showClock() {
-          var clockDiv = document.getElementById('clock');
-          var currDate = new Date();
-          clockDiv.innerHTML = " ";
-          clockDiv.innerHTML = "<div><h1>" + getTimeFromDate(currDate.toString(), true) + "</h1></div>";
-       }
-       var nInterval = setInterval(showClock, 1000);
+return {
+
+    InitUpcomingEvents: function(token){
+        showUpComing();
+        setInterval(showUpComing, 60000);
+    },
+   
+    InitClock: function () {
        showClock();
-   }
+       setInterval(showClock, 1000);
+    },
+
+    InitAds: function() {
+        $(".ad").hide();
+        showPage();
+    }
 }
 })();

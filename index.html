@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
 
     <title>MCD - Wayfinder</title>
 
@@ -32,56 +28,94 @@
     <script src="https://static.robinpowered.com/js/sdk/releases/0.5.1/robin.browser.min.js" type="text/javascript"></script>
 
 </head>
-<body >  <!-- Start loading content -->
-  <script type="text/js-render" id="upcomingLayout">
-    <div class='col-sm-6 upcoming'>{{:Title}}</div>
-    <div class='col-sm-1 upcoming'>{{:Status}}</div>
-    <div class='col-sm-3 upcoming'>{{:Started}} to {{:Ended}}</div>
-    <div class='col-sm-2 upcoming'>{{:Who}}</div>
-  </script>
-  <script type="text/js-render" id="whatsOn" >
+<body >  <!-- Start loading content -->    
+    <script type="text/js-render" id="upcomingLayout">
+        <div class='col-sm-6 upcoming'>{{:Title}}</div>
+        <div class='col-sm-1 text-center upcoming'>{{:DayOfWeek}}</div>
+        <div class='col-sm-3 text-center upcoming'>{{:StartTime}} to {{:EndTime}}</div>
+        <div class='col-sm-2 text-center upcoming'>{{:Who}}</div>
+    </script>
 
-  </script>
     <header>
+        <div id="progress"><div class="bar"></div></div>
         <div class="flex-container1">
-          <div class="flex-item2">
-              <div id="room7360" class="text-center toprow" style="background-color: #d14f00"></div>
-        </div>
-        <div class="flex-item2">
-              <div id="room7358" class="text-center toprow" style="background-color: #2E4E07"></div>
-        </div>
-        <div class="flex-item2">
-              <div id="room7359" class="text-center toprow" style="background-color: #3E4E98"></div>
-        </div>
-        <div class="flex-item3">
-            <div class="row">
-                  <div >
-                      <h2><strong>Next 3 upcoming events</strong>
-                        <div class='pull-right' id='clock'></div>
-                      </h2>
-
-                  </div>
-                  <h3><strong>Room 1</strong></h3>
-                  <div id="upcomingDiv" class="col-sm-12 bottomrow" style="background-color: #d14f00"></div>
-                  <h3><strong>Room 2</strong></h3>
-                  <div id="upcomingDiv1" class="col-sm-12 bottomrow" style="background-color: #2E4E07"></div>
-                  <h3><strong>Room 3</strong></h3>
-                  <div id="upcomingDiv2" class="col-sm-12 bottomrow" style="background-color: #3E4E98"></div>
-
-                  <div class="text-center" style="padding-top:30px">
-                      <h2 padding-bottom: 50px>PLEASE CALL 1300 762 515 TO ENQUIRE ABOUT BOOKING A ROOM</h2>
-                  </div>
+            <div class="flex-item2">
+                <div class="text-center toprow room1">
+                    <div>
+                        <h2><img src='images/space1_arrow.png'/> Room 1</h2>
+                    </div>
+                    <div id="room7360">
+                        <h1>Available</h1>
+                        <h1>All Day</h1>
+                    </div>
+                </div>
             </div>
-          </div>
-      </div>
+            <div class="flex-item2">
+                <div class="text-center toprow room2">
+                    <div>
+                        <h2><img src='images/space2_arrow.png'/> Room 2</h2>
+                    </div>
+                    <div id="room7358">
+                        <h1>Available</h1>
+                        <h1>All Day</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-item2">
+                <div class="text-center toprow room3">
+                    <div>
+                        <h2>Room 3 <img src='images/space3_arrow.png'/></h2>
+                    </div>
+                    <div id="room7359">
+                        <h1>Available</h1>
+                        <h1>All Day</h1>
+                    </div>                    
+                </div>
+            </div>
+
+            <div class="clock-row">
+                <div id='clock'></div>
+            </div>
+
+            <div id="upcoming" class="ad flex-item3">
+                <div class="row">
+                    <div class="col-sm-12"><h2>Next 3 upcoming events</h2></div>
+                    <div class="col-sm-12"><h3>Room 1</h3></div>
+                    <div id="upcomingDiv1" class="col-sm-12 bottomrow room1"></div>
+                  
+                    <div class="col-sm-12"><h3>Room 2</h3></div>
+                    <div id="upcomingDiv2" class="col-sm-12 bottomrow room2"></div>
+                  
+                    <div class="col-sm-12"><h3>Room 3</h3></div>
+                    <div id="upcomingDiv3" class="col-sm-12 bottomrow room3"></div>
+
+                    <div class="please-call">
+                        <h2>PLEASE CALL 1300 762 515 TO ENQUIRE ABOUT BOOKING A ROOM</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ciss-ad" class="ad">
+                <div class="ad-content">
+                    <h1>This is an ad for Community Information Support Services</h1>
+                </div>
+            </div>
+
+            <div id="hart-ad" class="ad">
+                <div class="ad-content">
+                    <h1>This is a HART 4000 ad.</h1>
+                </div>
+            </div>
+        </div>
     </header>
 </body>
+
 <script>
       var token = 'a3m31UWPWiC05BeWY6IpULmVh0yXiwBpQNHjcveNsOq2J6qOFMwIFert0QErEaMXgj2XFAxgaJBqUY3nYpoYP0ZvXRZXDHjwG0zmoABJHcwyLnEo9Bng3tunrpjvXv2U';
-      $(function(){
+      $(function() {
           WayFinder.InitUpcomingEvents(token);
           WayFinder.InitClock();
-      })
-
+          WayFinder.InitAds();
+      });
 </script>
 </html>

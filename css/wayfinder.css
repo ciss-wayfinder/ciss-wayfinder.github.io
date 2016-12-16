@@ -1,8 +1,27 @@
+body, html {
+    background-color: #eee;
+    font-family: 'Ubuntu', sans-serif;   
+}
+
+#progress {
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    width: 100%;
+}
+
+#progress .bar {
+    height: 5px;
+    width: 50%;
+    background-color: cornflowerblue;
+}
 
 .flex-container {
     display: flex;
     flex-direction: column;
     padding: 50px;
+    height: 100%;
+    position: relative;
 }
 
 .flex-container1 {
@@ -11,8 +30,6 @@
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: stretch;
-    background-color: #eee;
-
 }
 
 .flex-item {
@@ -27,18 +44,26 @@
 
 .flex-item2 { /** Whats on now **/
     background-color: #fff;
-     align-self: flex-start;
-     margin-top: 18px;
-     height: 350px;
-     width: 31%;
+    align-self: flex-start;
+    margin-top: 18px;
+    height: 350px;
+    width: 31%;
+    border-radius: 20px;
+    box-shadow: 10px 10px 5px grey;
  }
-
+ 
 .flex-item3 { /** Upcoming Events **/
-
-    padding-top: 35px;
     width: 95%;
     align-content: center;
     justify-content: space-around;
+}
+.flex-item3 h2 {
+    margin-top: 0px;
+}
+.flex-item3 h3 {
+    margin: 25px 0 5px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 h1 {
@@ -48,28 +73,77 @@ h1 {
     font-family: helvetica, arial;
 }
 
-.toprow h3, .toprow h2, .toprow h4 {
-    color: #000000;
+.room1 {
+     background-color: #d14f00;
+}
+.toprow.room1 > div:first-child {
+     background-color: #b34400;
+}
+.bottomrow.room1 {
+    border-left: 10px solid #b34400;
+}
+
+.room2 {
+    background-color: #2E4E07;
+}
+.toprow.room2 > div:first-child {
+    background-color: #294606;
+}
+.bottomrow.room2 {
+    border-left: 10px solid #1c2f04;
+}
+
+.room3 {
+     background-color: #3E4E98;
+}
+.toprow.room3 > div:first-child {
+     background-color: #34427f;
+}
+.bottomrow.room3 {
+    border-left: 10px solid #34427f;
+}
+
+.toprow h3 {
+    color: white;
+    position: absolute;
+    bottom: 15px;
+    text-align: center;
+    width: 100%;
+}
+
+.toprow h2 {
+    color: white;
 }
 
 .toprow h1 {
-    color: #eee;
+    color: white;
+    margin-top: 25px;
 }
 
 .toprow {
-   border-style: double;
-   border-color: #ffffff;
-   height: 350px;
+    border-style: single;
+    border-color: white;
+    height: 350px;
+    border-radius: 20px;  
+    position: relative; 
+}
+.toprow > div:first-child {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.toprow h2 {
+    margin-top: 0;
 }
 
 .room-border {
-
    border-color: #ffffff;
 }
 
 .bottomrow {
-    border-style: groove;
+    border-style: single;
     border-color: #ffffff;
+    border-radius: 10px;
 }
 
 h3,h2 {
@@ -83,4 +157,27 @@ h3,h2 {
 .upcoming {
     color: #eee;
     font-size: 24px;
+}
+
+.clock-row {
+    width: 100%;
+    text-align: right;
+    padding: 20px 20px 0;
+    margin: 0;
+}
+
+.please-call {
+    width: 95%;
+    margin: 0 auto;
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+}
+
+.ad-content {
+    margin: 30px;
+    border: 1px solid black;
+    box-shadow: 10px 10px 5px grey;    
+    border-radius: 30px;
+    padding: 20px;
 }
