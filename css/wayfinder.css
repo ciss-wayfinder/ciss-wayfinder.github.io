@@ -142,6 +142,7 @@ h1 {
     border-style: single;
     border-color: #ffffff;
     border-radius: 10px;
+    padding: 10px 15px;
 }
 
 h3,h2 {
