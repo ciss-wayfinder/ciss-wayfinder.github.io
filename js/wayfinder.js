@@ -54,6 +54,7 @@ var WayFinder = (function() {
                 var $upcomingDiv = $(divElement);
                 var $roomDiv = $("#room" + id);
                 var roomLoaded = false;
+                var foundUpcoming = false;
 
                 $upcomingDiv.html(""); 
                 $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
@@ -80,6 +81,7 @@ var WayFinder = (function() {
 
                             var template = $.templates('#upcomingLayout');
                             $upcomingDiv.html($upcomingDiv.html() + template.render(event));
+                            foundUpcoming = true;
 
                             if (!roomLoaded) {
                                 if (event.IsOnToday) {
@@ -97,7 +99,7 @@ var WayFinder = (function() {
                 }
             
                 // Were there any events to show?
-                if($upcomingDiv.html() === "") {
+                if(!foundUpcoming) {
                     $div.html("<div style='font-size: 24px' class='col-sm-12 upcoming'>There are no events scheduled for the next 3 days</div>");
                 }
             })
