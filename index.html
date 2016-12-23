@@ -13,21 +13,7 @@
     <!-- Custom CSS -->
     <link href="css/wayfinder.css?v=2" rel="stylesheet">
 
-    <!-- jQuery -->
-    <script src="js/jquery.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
-
-    <!-- JSRender -->
-    <script src="js/jsrender.min.js"></script>
-
-    <!-- Wayfinder helper script -->
-    <script src="js/wayfinder.js?v=4"></script>
-
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
-
-    <script src="https://static.robinpowered.com/js/sdk/releases/0.5.1/robin.browser.min.js" type="text/javascript"></script>
 
 </head>
 <body >  <!-- Start loading content -->    
@@ -238,12 +224,26 @@
             </div>
         </div>
     </header>
+    
 </body>
 
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<!-- JSRender -->
+<script src="js/jsrender.min.js"></script>
+
+<!-- Wayfinder helper script -->
+<script src="js/wayfinder.js?v=5"></script>
+
+<!--<script src="https://static.robinpowered.com/js/sdk/releases/0.7.0/robin.browser.min.js" type="text/javascript"></script> -->
+
 <script>
-      var token = 'a3m31UWPWiC05BeWY6IpULmVh0yXiwBpQNHjcveNsOq2J6qOFMwIFert0QErEaMXgj2XFAxgaJBqUY3nYpoYP0ZvXRZXDHjwG0zmoABJHcwyLnEo9Bng3tunrpjvXv2U';
       $(function() {
-          WayFinder.InitUpcomingEvents(token);
+          WayFinder.InitUpcomingEvents();
           WayFinder.InitClock();
           WayFinder.InitAds();
       });

@@ -48,65 +48,68 @@ var WayFinder = (function() {
     };
 
     function getEvents(id, divElement) {
-        $.get("https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming" + "?access_token=" + token)
-            .done(function(data) {
-                var events = data.data;
-                var $upcomingDiv = $(divElement);
-                var $roomDiv = $("#room" + id);
-                var roomLoaded = false;
+        $.ajax({
+            url: "https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming",
+            headers: { "Authorization": "Access-Token a3m31UWPWiC05BeWY6IpULmVh0yXiwBpQNHjcveNsOq2J6qOFMwIFert0QErEaMXgj2XFAxgaJBqUY3nYpoYP0ZvXRZXDHjwG0zmoABJHcwyLnEo9Bng3tunrpjvXv2U" } 
+        })
+        .done(function(data) {
+            var events = data.data;
+            var $upcomingDiv = $(divElement);
+            var $roomDiv = $("#room" + id);
+            var roomLoaded = false;
 
-                $upcomingDiv.html(""); 
-                $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
-                
-                var numEventsShow = (events.length > 3) ? 3 : events.length;
+            $upcomingDiv.html(""); 
+            $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
+            
+            var numEventsShow = (events.length > 3) ? 3 : events.length;
 
-                for (var i = 0; i < numEventsShow; i++) {
+            for (var i = 0; i < numEventsShow; i++) {
 
-                    var event = new Event(events[i]);
-                    var eventTimeDiv = " ";
-                
-                    if (event.IsOnNow) {  // there is a current event in the room
+                var event = new Event(events[i]);
+                var eventTimeDiv = " ";
+            
+                if (event.IsOnNow) {  // there is a current event in the room
+                    if (!roomLoaded) {
+                        $roomDiv.html(
+                            "<h1>" + event.Title + "</h1>" +
+                            "<h3>" + event.StartTime + " to " + event.EndTime + "</h3>" +
+                            "<h2 style='color: #fff'>" + event.Who + "</h2>"
+                        );
+                        roomLoaded = true;
+                    }
+                } else {  // no event on at the moment in the room
+
+                    if (event.DayOfWeek) { // but there are upcoming events
+
+                        var template = $.templates('#upcomingLayout');
+                        $upcomingDiv.html($upcomingDiv.html() + template.render(event));
+
                         if (!roomLoaded) {
-                            $roomDiv.html(
-                                "<h1>" + event.Title + "</h1>" +
-                                "<h3>" + event.StartTime + " to " + event.EndTime + "</h3>" +
-                                "<h2 style='color: #fff'>" + event.Who + "</h2>"
-                            );
-                            roomLoaded = true;
-                        }
-                    } else {  // no event on at the moment in the room
-
-                        if (event.DayOfWeek) { // but there are upcoming events
-
-                            var template = $.templates('#upcomingLayout');
-                            $upcomingDiv.html($upcomingDiv.html() + template.render(event));
-
-                            if (!roomLoaded) {
-                                if (event.IsOnToday) {
-                                    $roomDiv.html(
-                                        "<h1> Now Available </h1>" +
-                                        "<h1>Until " + event.StartTime + "</h1>" +
-                                        "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
-                                    );
-                                    roomLoaded = true;
-                                }
+                            if (event.IsOnToday) {
+                                $roomDiv.html(
+                                    "<h1> Now Available </h1>" +
+                                    "<h1>Until " + event.StartTime + "</h1>" +
+                                    "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
+                                );
+                                roomLoaded = true;
                             }
                         }
-
                     }
+
                 }
-            
-                // Were there any events to show?
-                if($upcomingDiv.html() === "") {
-                    $upcomingDiv.html("<div class='col-sm-12 upcoming text-center'>There are no events scheduled for the next 3 days</div>");
-                }
-            })
-            .fail(function() {
-                $(divElement).html("<small>Could not get the details of the upcoming events for this room.</small>");
-            })
-            .error(function() {
-                $(divElement).html("<small>Could not get the details of the upcoming events for this room.</small>");
-            });
+            }
+        
+            // Were there any events to show?
+            if($upcomingDiv.html() === "") {
+                $upcomingDiv.html("<div class='col-sm-12 upcoming text-center'>There are no events scheduled for the next 3 days</div>");
+            }
+        })
+        .fail(function() {
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room.</small>");
+        })
+        .error(function() {
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room.</small>");
+        });
     };
 
     function showClock() {
@@ -157,15 +160,15 @@ var WayFinder = (function() {
     }
 
     function Event (event) {
-        this.Title = event['title'];
-        this.StartDate = new Date(event['started_at']);
+        this.Title = event.title;
+        this.StartDate = new Date(event.start.date_time);
         this.StartTime = getTimeFromDate(this.StartDate);
-        this.EndDate = new Date(event['ended_at']);
+        this.EndDate = new Date(event.end.date_time);
         this.EndTime = getTimeFromDate(this.EndDate);
         this.TodayDate = new Date();
         this.IsOnToday = (this.StartDate.getDay() == this.TodayDate.getDay());
         this.DayOfWeek = this.IsOnToday ? "Today" : (this.StartDate.getDay() < this.TodayDate.getDay() + 3) ? getDayOfWeek(this.StartDate) : "";
-        this.Who = (event["visibility"] == "private") ? "Private Function" : "All Welcome";
+        this.Who = (event.visibility == "private") ? "Private Function" : "All Welcome";
         this.IsOnNow = (this.StartDate <= this.TodayDate && this.TodayDate <= this.EndDate);
     };
 
