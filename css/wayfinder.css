@@ -142,7 +142,7 @@ h1 {
     border-style: single;
     border-color: #ffffff;
     border-radius: 10px;
-    padding: 10px 15px;
+    padding: 8px 15px;
 }
 
 h3,h2 {
@@ -169,7 +169,7 @@ h3,h2 {
     width: 95%;
     margin: 0 auto;
     position: absolute;
-    bottom: 10px;
+    bottom: 7px;
     text-align: center;
 }
 
