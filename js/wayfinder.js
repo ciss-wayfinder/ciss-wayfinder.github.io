@@ -104,11 +104,11 @@ var WayFinder = (function() {
                 $upcomingDiv.html("<div class='col-sm-12 upcoming text-center'>There are no events scheduled for the next 3 days</div>");
             }
         })
-        .fail(function() {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room.</small>");
+        .fail(function(xhr, status, error) {
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Failure: " + status + "</small>");
         })
-        .error(function() {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room.</small>");
+        .error(function(xhr, status, error) {
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Error: " + status + "</small>");
         });
     };
 
