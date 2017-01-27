@@ -105,10 +105,10 @@ var WayFinder = (function() {
             }
         })
         .fail(function(xhr, status, error) {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Failure: " + status + "</small>");
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Failure: " + xhr.statusText + " (" + xhr.status + ")</small>");
         })
         .error(function(xhr, status, error) {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Error: " + status + "</small>");
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Error: " + xhr.statusText + " (" + xhr.status + ")</small>");
         });
     };
 
