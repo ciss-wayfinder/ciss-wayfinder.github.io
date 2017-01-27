@@ -105,10 +105,10 @@ var WayFinder = (function() {
             }
         })
         .fail(function(xhr, status, error) {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Failure: " + xhr.statusText + " (" + xhr.status + ")</small>");
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Failure: " + xhr.statusText + " (" + xhr.status + "), ReadyState: " + xhr.readyState + ", ResponseText: " + xhr.responseText + "</small>");
         })
         .error(function(xhr, status, error) {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Error: " + xhr.statusText + " (" + xhr.status + ")</small>");
+            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Status: " + xhr.statusText + " (" + xhr.status + "), ReadyState: " + xhr.readyState + ", ResponseText: " + xhr.responseText + "</small>");
         });
     };
 
