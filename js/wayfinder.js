@@ -1,10 +1,17 @@
 var WayFinder = (function() {
 
+//   var spaces = [
+//       {ID: "7358", Element: "#upcomingDiv2"}, // room 2
+//       {ID: "7360", Element: "#upcomingDiv1"}, // room 1
+//       {ID: "7359", Element: "#upcomingDiv3"}  // room 3
+//   ];
+
   var spaces = [
-      {ID: "7358", Element: "#upcomingDiv2"}, // room 2
-      {ID: "7360", Element: "#upcomingDiv1"}, // room 1
-      {ID: "7359", Element: "#upcomingDiv3"}  // room 3
+      {ID: "22439", Element: "#upcomingDiv1"}, // room 1
+      {ID: "22440", Element: "#upcomingDiv2"}, // room 2
+      {ID: "22441", Element: "#upcomingDiv3"}  // room 3
   ];
+
 
     /** This function takes a date as a string and returns the time and whether Am or Pm **/
     function getTimeFromDate(date, showSeconds) {
