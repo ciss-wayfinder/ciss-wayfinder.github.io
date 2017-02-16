@@ -7,9 +7,9 @@ var WayFinder = (function() {
 //   ];
 
   var spaces = [
-      {ID: "22439", Element: "#upcomingDiv1"}, // room 1
-      {ID: "22440", Element: "#upcomingDiv2"}, // room 2
-      {ID: "22441", Element: "#upcomingDiv3"}  // room 3
+      {Room: 1, ID: "22439"},
+      {Room: 2, ID: "22440"},
+      {Room: 3, ID: "22441"}
   ];
 
 
@@ -50,19 +50,19 @@ var WayFinder = (function() {
     /** This function returns privacy of the event in the room **/
     function showUpComing()  {
         for (var x = 0; x < spaces.length; x++) {
-            getEvents(spaces[x].ID, spaces[x].Element);
+            getEvents(spaces[x].ID, spaces[x].Room);
         }        
     };
 
-    function getEvents(id, divElement) {
+    function getEvents(id, room) {
         $.ajax({
             url: "https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming",
             headers: { "Authorization": "Access-Token a3m31UWPWiC05BeWY6IpULmVh0yXiwBpQNHjcveNsOq2J6qOFMwIFert0QErEaMXgj2XFAxgaJBqUY3nYpoYP0ZvXRZXDHjwG0zmoABJHcwyLnEo9Bng3tunrpjvXv2U" } 
         })
         .done(function(data) {
             var events = data.data;
-            var $upcomingDiv = $(divElement);
-            var $roomDiv = $("#room" + id);
+            var $upcomingDiv = $("#upcomingDiv" + room);
+            var $roomDiv = $("#room" + room);
             var roomLoaded = false;
 
             $upcomingDiv.html(""); 
