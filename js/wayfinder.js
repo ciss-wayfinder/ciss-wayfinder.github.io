@@ -4,12 +4,14 @@ var WayFinder = (function() {
 //       {ID: "7358", Element: "#upcomingDiv2"}, // room 2
 //       {ID: "7360", Element: "#upcomingDiv1"}, // room 1
 //       {ID: "7359", Element: "#upcomingDiv3"}  // room 3
-//   ];
+//   ]; 
+
+  var ApiKey = "AIzaSyAbAIMFWBtVBUAAeF17VV_n8nD2nfj0Q4s";
 
   var spaces = [
-      {Room: 1, ID: "22439"},
-      {Room: 2, ID: "22440"},
-      {Room: 3, ID: "22441"}
+      {Room: 1, ID: "mycommunitydirectory.com.au_70jk7vcroldgaprgtoeg98b4q4%40group.calendar.google.com"},
+      {Room: 2, ID: "mycommunitydirectory.com.au_lg7205iba886dam5h6htpuv970@group.calendar.google.com"},
+      {Room: 3, ID: "mycommunitydirectory.com.au_aad3272ff4i2kj2aqc8a5fuk64@group.calendar.google.com"}
   ];
 
 
@@ -55,26 +57,31 @@ var WayFinder = (function() {
     };
 
     function getEvents(id, room) {
+        var startDate = new Date();
+        startDate.setHours(0,0,0,0);
+        var startTime = encodeURIComponent( startDate.toISOString());
         $.ajax({
-            url: "https://api.robinpowered.com/v1.0/spaces/" + id + "/events/upcoming",
-            headers: { "Authorization": "Access-Token a3m31UWPWiC05BeWY6IpULmVh0yXiwBpQNHjcveNsOq2J6qOFMwIFert0QErEaMXgj2XFAxgaJBqUY3nYpoYP0ZvXRZXDHjwG0zmoABJHcwyLnEo9Bng3tunrpjvXv2U" } 
+            url: "https://www.googleapis.com/calendar/v3/calendars/" + id + "/events" + 
+            "?maxResults=4" + 
+            "&orderBy=startTime" + 
+            "&singleEvents=true" + 
+            "&timeMin=" + startTime +
+            "&key=" + ApiKey
         })
         .done(function(data) {
-            var events = data.data;
+            var events = data.items;
             var $upcomingDiv = $("#upcomingDiv" + room);
             var $roomDiv = $("#room" + room);
             var roomLoaded = false;
+            var upcomingEvents = [];
 
             $upcomingDiv.html(""); 
             $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
             
-            var numEventsShow = (events.length > 3) ? 3 : events.length;
+            for (var i = 0; i < events.length; i++) {
 
-            for (var i = 0; i < numEventsShow; i++) {
-
-                var event = new Event(events[i]);
-                var eventTimeDiv = " ";
-            
+                var event = new Event(events[i]);            
+                
                 if (event.IsOnNow) {  // there is a current event in the room
                     if (!roomLoaded) {
                         $roomDiv.html(
@@ -86,29 +93,33 @@ var WayFinder = (function() {
                     }
                 } else {  // no event on at the moment in the room
 
-                    if (event.DayOfWeek) { // but there are upcoming events
-
-                        var template = $.templates('#upcomingLayout');
-                        $upcomingDiv.html($upcomingDiv.html() + template.render(event));
-
+                    if (event.IsOnToday) {
+                        if (event.EndDate < event.TodayDate) {
+                            // Don't show event finished today already
+                            continue;
+                        }
                         if (!roomLoaded) {
-                            if (event.IsOnToday) {
-                                $roomDiv.html(
-                                    "<h1> Now Available </h1>" +
-                                    "<h1>Until " + event.StartTime + "</h1>" +
-                                    "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
-                                );
-                                roomLoaded = true;
-                            }
+                            $roomDiv.html(
+                                "<h1> Now Available </h1>" +
+                                "<h1>Until " + event.StartTime + "</h1>" +
+                                "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
+                            );
+                            roomLoaded = true;
                         }
                     }
 
+                    upcomingEvents.push(event);
                 }
             }
-        
+                
             // Were there any events to show?
-            if($upcomingDiv.html() === "") {
+            if(upcomingEvents.length === 0) {
                 $upcomingDiv.html("<div class='col-sm-12 upcoming text-center'>There are no events scheduled for the next 3 days</div>");
+            }
+            else {
+                upcomingEvents = upcomingEvents.slice(0, 3);
+                var template = $.templates('#upcomingLayout');
+                $upcomingDiv.html(template.render(upcomingEvents));
             }
         })
         .fail(function(xhr, status, error) {
@@ -167,16 +178,48 @@ var WayFinder = (function() {
     }
 
     function Event (event) {
-        this.Title = event.title;
-        this.StartDate = new Date(event.start.date_time);
+        this.Title = event.summary || "Private Function";
+        this.StartDate = new Date(event.start.dateTime);
         this.StartTime = getTimeFromDate(this.StartDate);
-        this.EndDate = new Date(event.end.date_time);
+        this.EndDate = new Date(event.end.dateTime);
         this.EndTime = getTimeFromDate(this.EndDate);
         this.TodayDate = new Date();
-        this.IsOnToday = (this.StartDate.getDay() == this.TodayDate.getDay());
-        this.DayOfWeek = this.IsOnToday ? "Today" : (this.StartDate.getDay() < this.TodayDate.getDay() + 3) ? getDayOfWeek(this.StartDate) : "";
-        this.Who = (event.visibility == "private") ? "Private Function" : "All Welcome";
+        this.IsOnToday = (this.StartDate.getDate() == this.TodayDate.getDate());
+        this.DayOfWeek = this.IsOnToday ? "Today" : getDayOfWeek(this.StartDate);
         this.IsOnNow = (this.StartDate <= this.TodayDate && this.TodayDate <= this.EndDate);
+        this.Visibility
+        this.Who = "All Welcome";
+
+        if (!event.visibility || event.visibility !== "private") {
+            if (event.description) {
+                if (event.description.includes("PRIVATE")) {
+                    this.Who = "Private Function";
+                }
+                else if (event.description.includes("INVITATION")) {
+                    this.Who = "By Invitation";
+                }
+            }
+        }
+        var future = new Date();
+        future.setDate(this.TodayDate.getDate() + 7);
+        if (this.StartDate >= future) {
+            this.DayOfWeek = this.DayOfWeek.substr(0, 3) + " " + this.StartDate.getDate();
+            switch (this.StartDate.getDate()) {
+                case 1, 21, 31:
+                    this.DayOfWeek += "st";
+                    break;
+                case 2, 22:
+                    this.DayOfWeek += "nd";
+                    break;
+                case 3, 23:
+                    this.DayOfWeek += "rd";
+                    break;
+                default:
+                    this.DayOfWeek += "th";
+                    break;
+            }
+        }
+
     };
 
 return {
