@@ -8,10 +8,10 @@ var WayFinder = (function() {
 
   var ApiKey = "AIzaSyAbAIMFWBtVBUAAeF17VV_n8nD2nfj0Q4s";
 
-  var spaces = [
-      {Room: 1, ID: "mycommunitydirectory.com.au_70jk7vcroldgaprgtoeg98b4q4%40group.calendar.google.com"},
-      {Room: 2, ID: "mycommunitydirectory.com.au_lg7205iba886dam5h6htpuv970@group.calendar.google.com"},
-      {Room: 3, ID: "mycommunitydirectory.com.au_aad3272ff4i2kj2aqc8a5fuk64@group.calendar.google.com"}
+  var rooms = [
+      {Room: 1, Title: "Room 1", ID: "mycommunitydirectory.com.au_70jk7vcroldgaprgtoeg98b4q4%40group.calendar.google.com", Events: []},
+      {Room: 2, Title: "Room 2", ID: "mycommunitydirectory.com.au_lg7205iba886dam5h6htpuv970@group.calendar.google.com", Events: []},
+      {Room: 3, Title: "Room 3", ID: "mycommunitydirectory.com.au_aad3272ff4i2kj2aqc8a5fuk64@group.calendar.google.com", Events: []}
   ];
 
 
@@ -49,19 +49,20 @@ var WayFinder = (function() {
         return weekday[numOfWeekday];
     };
 
-    /** This function returns privacy of the event in the room **/
-    function showUpComing()  {
-        for (var x = 0; x < spaces.length; x++) {
-            getEvents(spaces[x].ID, spaces[x].Room);
-        }        
+    function loadEvents()  {
+        for (var x = 0; x < rooms.length; x++) {
+            getRoomEvents(rooms[x]);
+        }
     };
 
-    function getEvents(id, room) {
+    function getRoomEvents(room) {
         var startDate = new Date();
         startDate.setHours(0,0,0,0);
-        var startTime = encodeURIComponent( startDate.toISOString());
+        var startTime = encodeURIComponent(startDate.toISOString());
+        $(".error-row").html('Fetching events for ' + room.Title + ' ...');
+
         $.ajax({
-            url: "https://www.googleapis.com/calendar/v3/calendars/" + id + "/events" + 
+            url: "https://www.googleapis.com/calendar/v3/calendars/" + room.ID + "/events" + 
             "?maxResults=4" + 
             "&orderBy=startTime" + 
             "&singleEvents=true" + 
@@ -69,65 +70,78 @@ var WayFinder = (function() {
             "&key=" + ApiKey
         })
         .done(function(data) {
-            var events = data.items;
-            var $upcomingDiv = $("#upcomingDiv" + room);
-            var $roomDiv = $("#room" + room);
-            var roomLoaded = false;
-            var upcomingEvents = [];
+            room.Events = data.items;
+            showRoomEvents(room);
+            $(".error-row").html('');
+        })
+        .fail(function(xhr, status, error) {
+            var err = $(".error-row").html();
+            $(".error-row").html(err + "<br />Failed to get the details of the upcoming events for " + room.Title + ". Failure: " + xhr.statusText + " (" + xhr.status + "), ReadyState: " + xhr.readyState + ", ResponseText: " + xhr.responseText);
+        })
+        .error(function(xhr, status, error) {
+            var err = $(".error-row").html();
+            $(".error-row").html(err + "<br />Could not get the details of the upcoming events for " + room.Title + ". Status: " + xhr.statusText + " (" + xhr.status + "), ReadyState: " + xhr.readyState + ", ResponseText: " + xhr.responseText);
+        });
+    }
 
-            $upcomingDiv.html(""); 
-            $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
+    function showEvents()  {
+        for (var x = 0; x < rooms.length; x++) {
+            showRoomEvents(rooms[x]);
+        }
+    };
+
+    function showRoomEvents(room) {
+        var $upcomingDiv = $("#upcomingDiv" + room.Room);
+        var $roomDiv = $("#room" + room.Room);
+        var roomLoaded = false;
+        var upcomingEvents = [];
+
+        $upcomingDiv.html(""); 
+        $roomDiv.html("<h1>Available</h1><h1>All Day</h1>");
             
-            for (var i = 0; i < events.length; i++) {
+        for (var i = 0; i < room.Events.length; i++) {
 
-                var event = new Event(events[i]);            
-                
-                if (event.IsOnNow) {  // there is a current event in the room
+            var event = new Event(room.Events[i]);            
+            
+            if (event.IsOnNow) {  // there is a current event in the room
+                if (!roomLoaded) {
+                    $roomDiv.html(
+                        "<h1>" + event.Title + "</h1>" +
+                        "<h3>" + event.StartTime + " to " + event.EndTime + "</h3>" +
+                        "<h2 style='color: #fff'>" + event.Who + "</h2>"
+                    );
+                    roomLoaded = true;
+                }
+            } else {  // no event on at the moment in the room
+
+                if (event.IsOnToday) {
+                    if (event.EndDate < event.TodayDate) {
+                        // Don't show event finished today already
+                        continue;
+                    }
                     if (!roomLoaded) {
                         $roomDiv.html(
-                            "<h1>" + event.Title + "</h1>" +
-                            "<h3>" + event.StartTime + " to " + event.EndTime + "</h3>" +
-                            "<h2 style='color: #fff'>" + event.Who + "</h2>"
+                            "<h1> Now Available </h1>" +
+                            "<h1>Until " + event.StartTime + "</h1>" +
+                            "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
                         );
                         roomLoaded = true;
                     }
-                } else {  // no event on at the moment in the room
-
-                    if (event.IsOnToday) {
-                        if (event.EndDate < event.TodayDate) {
-                            // Don't show event finished today already
-                            continue;
-                        }
-                        if (!roomLoaded) {
-                            $roomDiv.html(
-                                "<h1> Now Available </h1>" +
-                                "<h1>Until " + event.StartTime + "</h1>" +
-                                "<h3 style='color: #fff'>"+ event.StartTime + " " + event.Title + "</h3>"
-                            );
-                            roomLoaded = true;
-                        }
-                    }
-
-                    upcomingEvents.push(event);
                 }
+
+                upcomingEvents.push(event);
             }
-                
-            // Were there any events to show?
-            if(upcomingEvents.length === 0) {
-                $upcomingDiv.html("<div class='col-sm-12 upcoming text-center'>There are no events scheduled for the next 3 days</div>");
-            }
-            else {
-                upcomingEvents = upcomingEvents.slice(0, 3);
-                var template = $.templates('#upcomingLayout');
-                $upcomingDiv.html(template.render(upcomingEvents));
-            }
-        })
-        .fail(function(xhr, status, error) {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Failure: " + xhr.statusText + " (" + xhr.status + "), ReadyState: " + xhr.readyState + ", ResponseText: " + xhr.responseText + "</small>");
-        })
-        .error(function(xhr, status, error) {
-            $(divElement).html("<small>Could not get the details of the upcoming events for this room. Status: " + xhr.statusText + " (" + xhr.status + "), ReadyState: " + xhr.readyState + ", ResponseText: " + xhr.responseText + "</small>");
-        });
+        }
+            
+        // Were there any events to show?
+        if(upcomingEvents.length === 0) {
+            $upcomingDiv.html("<div class='col-sm-12 upcoming text-center'>There are no events scheduled for the next 3 days</div>");
+        }
+        else {
+            upcomingEvents = upcomingEvents.slice(0, 3);
+            var template = $.templates('#upcomingLayout');
+            $upcomingDiv.html(template.render(upcomingEvents));
+        }
     };
 
     function showClock() {
@@ -225,8 +239,9 @@ var WayFinder = (function() {
 return {
 
     InitUpcomingEvents: function(token){
-        showUpComing();
-        setInterval(showUpComing, 60000);
+        loadEvents();
+        setInterval(loadEvents, 600000); // every 10 minutes check Google for events
+        setInterval(showEvents, 60000); // every minute redisplay events
     },
    
     InitClock: function () {
