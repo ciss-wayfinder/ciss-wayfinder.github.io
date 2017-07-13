@@ -7,6 +7,7 @@ var WayFinder = (function() {
 //   ]; 
 
   var ApiKey = "AIzaSyAbAIMFWBtVBUAAeF17VV_n8nD2nfj0Q4s";
+  var LastFetched = new Date();
 
   var rooms = [
       {Room: 1, Title: "Room 1", ID: "mycommunitydirectory.com.au_70jk7vcroldgaprgtoeg98b4q4%40group.calendar.google.com", Events: []},
@@ -59,11 +60,16 @@ var WayFinder = (function() {
         var startDate = new Date();
         startDate.setHours(0,0,0,0);
         var startTime = encodeURIComponent(startDate.toISOString());
-        $(".error-row").html('Fetching events for ' + room.Title + ' ...');
+        $(".error-row").html('Fetching events for ' + room.Title + ' at ' + getTimeFromDate(new Date(), true) + ' ...');
+
+        if (!navigator.onLine) {
+            $(".error-row").html('WayFinder is currently OFFLINE. Current events are not being displayed. (Last fetched: ' + getDayOfWeek(LastFetched) + ' at ' + getTimeFromDate(LastFetched, true) + ').');
+            return;
+        }
 
         $.ajax({
-            url: "https://www.googleapis.com/calendar/v3/calendars/" + room.ID + "/events" + 
-            "?maxResults=4" + 
+            url: "https://www.googleapis.com/calendar/v3/calendars/" + room.ID + "/events?" + 
+            "maxResults=4" + 
             "&orderBy=startTime" + 
             "&singleEvents=true" + 
             "&timeMin=" + startTime +
@@ -73,6 +79,7 @@ var WayFinder = (function() {
             room.Events = data.items;
             showRoomEvents(room);
             $(".error-row").html('');
+            LastFetched = new Date();
         })
         .fail(function(xhr, status, error) {
             var err = $(".error-row").html();
@@ -242,6 +249,10 @@ return {
         loadEvents();
         setInterval(loadEvents, 600000); // every 10 minutes check Google for events
         setInterval(showEvents, 60000); // every minute redisplay events
+        window.addEventListener('online',  loadEvents);
+        window.addEventListener('offline', function() {
+            $(".error-row").html('WayFinder is currently OFFLINE. Current events are not being displayed. (Last fetched: ' + getDayOfWeek(LastFetched) + ' at ' + getTimeFromDate(LastFetched, true) + ').');
+        });
     },
    
     InitClock: function () {
