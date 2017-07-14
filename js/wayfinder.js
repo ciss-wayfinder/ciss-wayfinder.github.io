@@ -60,7 +60,8 @@ var WayFinder = (function() {
         var startDate = new Date();
         startDate.setHours(0,0,0,0);
         var startTime = encodeURIComponent(startDate.toISOString());
-        $(".error-row").html('Fetching events for ' + room.Title + ' at ' + getTimeFromDate(new Date(), true) + ' ...');
+        var fetchTime = new Date();
+        $(".error-row").html('Fetching events for ' + room.Title + ' on ' + getDayOfWeek(fetchTime) + ' at ' + getTimeFromDate(fetchTime, true) + ' ...');
 
         if (!navigator.onLine) {
             $(".error-row").html('WayFinder is currently OFFLINE. Current events are not being displayed. (Last fetched: ' + getDayOfWeek(LastFetched) + ' at ' + getTimeFromDate(LastFetched, true) + ').');
